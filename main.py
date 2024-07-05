@@ -3,7 +3,7 @@ from discord.ext import commands
 import telegram
 
 # Discord bot token
-TOKEN = ''
+
 
 # Telegram bot token and chat ID
 telegram_bot_token = '7293674303:AAHkx99AFtATHQjjEL7TQDWsqlEM7AnPdFY'
