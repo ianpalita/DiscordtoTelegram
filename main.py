@@ -1,43 +1,44 @@
+import os
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 import telegram
+from telegram.error import BadRequest
 
-# Discord bot token
+# Load environment variables from .env file
+load_dotenv()
 
-
-# Telegram bot token and chat ID
-telegram_bot_token = '7293674303:AAHkx99AFtATHQjjEL7TQDWsqlEM7AnPdFY'
-telegram_chat_id = '-4207858086'
+# Fetch Discord bot token from environment variable
+discord_token = os.getenv('DISCORD_BOT_TOKEN')
+print(f"DISCORD_BOT_TOKEN fetched from environment: {discord_token}")
 
 # Initialize Discord bot with intents
 intents = discord.Intents.default()
 intents.message_content = True  # Enable the message content intent
-
 bot = commands.Bot(command_prefix='!', intents=intents)
+
+# Telegram bot setup
+telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+telegram_bot = telegram.Bot(token=telegram_token)
+telegram_chat_id = os.getenv('TELEGRAM_CHAT_ID')
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user} has connected to Discord!')
-    print('Telegram and Discord bot connected successfully!')
+    print(f'Logged in as {bot.user}')
 
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
 
-    # Check if the message content is empty or whitespace
-    if not message.content.strip():
-        return
-
-    # Send the message to Telegram
     try:
-        telegram_bot = telegram.Bot(token=telegram_bot_token)
+        # Mirror message to Telegram
         await telegram_bot.send_message(chat_id=telegram_chat_id, text=message.content)
-    except Exception as e:
+    except BadRequest as e:
         print(f'Error sending message to Telegram: {e}')
-    else:
-        print(f'Successfully sent message to Telegram: {message.content}')
 
-    await bot.process_commands(message)  # Ensure commands are processed
+    await bot.process_commands(message)
 
-bot.run(TOKEN)
+# Start the Discord bot
+print("Starting bot...")
+bot.run(discord_token)
